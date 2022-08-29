@@ -2,11 +2,22 @@
   <div class="app">
 
     <h1>Страница с постами</h1>
-    <my-button
-        @click="showDialog"
-    >
-      Создать пост
-    </my-button>
+    <my-input
+        v-model="searchQuery"
+        placeholder="Поиск..."
+    />
+    <div class="app_btns">
+      <my-button
+          @click="showDialog"
+      >
+        Создать пост
+      </my-button>
+      <my-select
+          v-model="selectedSort"
+          :options="sortOptions"
+      />
+    </div>
+
     <my-dialog v-model:show="dialogVisible">
       <post-form
           @create="createPost"
@@ -14,8 +25,8 @@
     </my-dialog>
 
     <post-list
-        v-if="isPostLoading"
-        :posts="posts"
+        v-if="!isPostLoading"
+        :posts="sortedAndSearchedPosts"
         @remove="removePost"
     />
     <h3 v-else>
@@ -31,11 +42,15 @@ import PostList from "@/components/PostList";
 import MyDialog from "@/components/UI/MyDialog";
 import MyButton from "@/components/UI/MyButton";
 import axios from "axios";
+import MySelect from "@/components/UI/MySelect";
+import MyInput from "@/components/UI/MyInput";
 
 export default {
   components: {
+    MyInput,
     MyButton,
     MyDialog,
+    MySelect,
     PostList,
     PostForm
   },
@@ -44,6 +59,12 @@ export default {
       posts: [],
       dialogVisible: false,
       isPostLoading: false,
+      selectedSort: '',
+      searchQuery: '',
+      sortOptions: [
+        {value: 'title', name: 'По наименованию'},
+        {value: 'body', name: 'По описанию'},
+      ]
     }
   },
   methods: {
@@ -65,12 +86,21 @@ export default {
       } catch {
         alert('Error')
       } finally {
+        console.log('1231')
         this.isPostLoading = false
       }
     }
   },
   mounted() {
     this.fetchPosts()
+  },
+  computed: {
+    sortedPosts() {
+      return [...this.posts].sort((a, b) => a[this.selectedSort]?.localeCompare(b[this.selectedSort]))
+    },
+    sortedAndSearchedPosts() {
+      return this.sortedPosts.filter(post => post.title.toLowerCase().includes(this.searchQuery.toLowerCase()))
+    }
   }
 }
 </script>
@@ -85,6 +115,12 @@ export default {
 
 .app {
   padding: 20px;
+
+}
+
+.app_btns {
+  display: flex;
+  justify-content: space-between;
 }
 
 </style>
