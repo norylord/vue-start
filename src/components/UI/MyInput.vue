@@ -23,7 +23,12 @@ export default {
   margin: 10px 5px;
   outline: none;
   border: 0;
+  border-bottom: 2px solid gray;
+}
+
+.input:focus {
   border-bottom: 2px solid #5051f9;
+  transition: border-bottom-color 0.3s ease-in-out;
 }
 
 </style>
